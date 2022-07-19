@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using VOD.Common.Entities;
 using VOD.Database.Contexts;
@@ -26,7 +27,7 @@ namespace VOD.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Dashboard(SortFilterPageOptions options)
+        public async Task<IActionResult> List(SortFilterPageOptions options)
         {
             var listService = new ListCourseService(_context);
             var courselist = await listService.SortCoursePage(options).ToListAsync();
@@ -35,8 +36,22 @@ namespace VOD.UI.Controllers
         }
 
         [HttpGet]
-        public IActionResult Course (int id)
+        public JsonResult GetFilterSearchContent 
+            (SortFilterPageOptions options) 
         {
+            var service = new 
+               CourseFilterDropdownService(_context); 
+
+            var traceIdent = HttpContext.TraceIdentifier; 
+
+            return null; //#E
+        }
+
+        [HttpGet]
+        public async Task <IActionResult> GetSingleCourse (int id)
+        {
+            var courseservice = new CourseSelectedService(_context);
+            var course = await courseservice.SelectedCoursePage(id);
             return View();
         }
 

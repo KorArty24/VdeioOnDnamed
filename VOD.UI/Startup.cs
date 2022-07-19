@@ -1,12 +1,18 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using VOD.Common.Entities;
 using VOD.Database.Contexts;
 using VOD.Database.Migrations.DbInitializer;
+using VOD.Service.AppStart;
+using VOD.Service.ModulesServices.QueryObjects;
+using VOD.UI.HelperExtensions;
 
 namespace VOD.UI
 {
@@ -29,11 +35,20 @@ namespace VOD.UI
             services.AddDbContext<VODContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+            services.RegisterServiceLayerDi();
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new AutoMapperConfigProfile());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
+            // loggerFactory.AddProvider(new RequestTransientLogger(() => httpContextAccessor));
+
+            ModuleListDTOSelect.Configure(app.ApplicationServices.GetService<IMapper>());
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
